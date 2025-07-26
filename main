@@ -1,0 +1,49 @@
+from telethon import TelegramClient, events, sync, connection
+#import os
+import csv
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.types import PeerUser
+#import time
+
+r_api = 0  # Тут укажите полученый ранее api
+r_hash = 0  # Тут укажите полученый ранее hash
+
+with TelegramClient('my', r_api, r_hash, system_version="4.10.5 beta x64") as client:
+    usernames = []
+    ids = []
+    dates = []
+    messages = []
+    
+
+    all_messages = client.iter_messages('channel')
+
+    for message in all_messages:
+        try:
+            date = message.date
+            print(date)
+            print(message.message)
+            print('OOOOOOOOOOO')
+            # Получаем информацию о пользователе
+            user = client.get_entity(message.from_id.user_id)
+            
+            # Извлекаем username (если есть)
+            username = user.username if user.username else "No username"
+            
+            # Извлекаем id пользователя
+            user_id = user.id
+
+            usernames.append(username)
+            dates.append(date)
+            messages.append(message.message)
+            ids.append(user_id)
+
+        except Exception as e:
+            print(f"Ошибка: {e}")
+    
+    with open('moshenniki_wildberries_wb_new.csv', 'w', newline='', encoding='utf-8-sig') as csv_file:
+            writer = csv.writer(csv_file, delimiter=';')
+            writer.writerow(['Дата', 'ID пользователя', 'Юзернейм пользователя', 'Текст сообщения'])
+            for b in range(len(usernames)):
+                row = [dates[b], ids[b], usernames[b], messages[b]]
+                writer.writerow(row)
+    
